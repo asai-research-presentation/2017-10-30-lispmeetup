@@ -1,12 +1,12 @@
 
 (add-to-list 'load-path (concat default-directory "../org-mode/lisp/"))
 (add-to-list 'load-path (concat default-directory "../org-mode/contrib/lisp/"))
-(add-to-list 'load-path (concat default-directory "../htmlize"))
-
 (require 'ox-html)
 (require 'org-table)
 ;; (require 'htmlize)
 (defun compile-org (in out)
+  (require 'package) ;; You might already have this line
+  (package-initialize) ;; You might already have this line
   (require 'ox-html)
   (require 'org-table)
   (org-version nil t t)
