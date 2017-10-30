@@ -1,4 +1,4 @@
-#+title: Yet Another Org-mode Presentation Script
+#+title: Dynotune / Dirtylogman 紹介
 #+author: Masataro Asai
 #+include: "head.org"
 #+LINK: img file:img/%s
@@ -25,5 +25,255 @@ Made by guicho2.71828 (Masataro Asai)
 #+end_note
 #+end_outline-text-1
 
-* What Is It?
+* Dynotune
 
+#+HTML: <iframe width="560" height="315" src="https://www.youtube.com/embed/UUxQpsemTLo?rel=0" frameborder="0" allowfullscreen></iframe>
+
+** あらすじ
+
++ AIの研究をやっています (2018年3月卒業)
++ プログラムの *自動チューニング* で実験を楽に
++ 使い方
++ 展望
+
+** ディープラーニングを使った研究 (確率理論の能力はクソゴミ)
+
+DL で 画像から命題変数とアクションを自動(教師なし)で取り出す研究
+
+#+begin_container-fluid
+#+begin_row-fluid
+#+begin_span5
+ [[png:sae/state-ae]]
+#+end_span5
+#+begin_span2
+#+end_span2
+#+begin_span5
+ [[png:ama/overview2]]
+#+end_span5
+#+end_row-fluid
+#+end_container-fluid
+
+AAAIの結果は来週には結果が出るよ
+
+* Dirtylogman
+
+あらすじ
+
++ AIの研究をやっています
++ 人の書いたソルバがクソみたいなログを吐きます
++ ソルバごとにログの形式が違うと言うか形式がありません
++ 毎回シェル芸でログをパースしてプロット(性能評価)する必要があります
++ しかもログが大量にあるので結構時間かかる
++ *簡単にしたい* & 速くしたい (future work)
+
+** STRIPSプランニング (PSPACE困難) のソルバの高速化を研究
+
+うまく枝刈りしないとメモリ使用量が指数爆発します
+
+#+begin_example
+Initializing blind search heuristic...
+New best heuristic value for blind: 1
+[g=0, 1 evaluated, 0 expanded, t=0.00s, 3252 KB]
+f = 1  [1 evaluated, 0 expanded, t=0.00s, 3252 KB]
+f = 2  [5 evaluated, 1 expanded, t=0.00s, 3252 KB]
+f = 3  [21 evaluated, 5 expanded, t=0.00s, 3252 KB]
+f = 4  [81 evaluated, 21 expanded, t=0.00s, 3252 KB]
+f = 5  [287 evaluated, 81 expanded, t=0.00s, 3388 KB]
+f = 6  [991 evaluated, 287 expanded, t=0.00s, 3388 KB]
+             <<< 探索空間が綺麗に指数爆発中。対数プロットいらず
+f = 7  [3269 evaluated, 991 expanded, t=0.02s, 3512 KB]
+f = 8  [10695 evaluated, 3269 expanded, t=0.04s, 4036 KB]
+f = 9  [33876 evaluated, 10695 expanded, t=0.12s, 5440 KB]
+f = 10 [106476 evaluated, 33876 expanded, t=0.36s, 9924 KB]
+f = 11 [325609 evaluated, 106476 expanded, t=1.16s, 24100 KB]
+f = 12 [985207 evaluated, 325609 expanded, t=3.54s, 64108 KB]
+f = 13 [2909959 evaluated, 985207 expanded, t=10.96s, 187416 KB]
+f = 14 [8497431 evaluated, 2909959 expanded, t=32.56s, 525844 KB]
+#+end_example
+
+** 論文にするにはきれいなグラフと表が必要
+
+#+begin_center
+[[spng:bwfs]]
+#+end_center
+
+#+begin_alignright
+しかし...
+#+end_alignright
+
+** grepするしかないクソみたいなログ
+
+Fast Downward ソルバ
+
+#+begin_example
+reading input... [t=5.4029e-05 (sec)]
+done reading input! [t=0.00514561 (sec)]
+packing state variables...done! [t=0.00519267 (sec)]
+...
+Building successor generator...done! [t=0.00609125 (sec)]
+done initalizing global data [t=0.00610467 (sec)]
+Conducting best first search without reopening closed nodes, (real) bound = 2147483647
+Initializing additive heuristic...
+Simplifying 480 unary operators... done! [480 unary operators]
+New best heuristic value for add(cost_type = one): 19
+[g=0, 1 evaluated, 0 expanded, t=0.00814387 (sec), 3484 KB]
+...
+Solution found!
+Actual search time: 0.00292444 (sec) [t=0.011195 (sec)]
+Plan length: 14 step(s).
+Plan cost:  66
+Expanded 17 state(s).
+Reopened 0 state(s).
+...
+Search time: 0.00447358 (sec)
+Total time: 0.0111981 (sec)
+Solution found.
+Peak memory: 3484 KB
+#+end_example
+
+** しかもソルバによって形式が違う
+
+Madagascar ソルバ
+
+#+begin_example
+Madagascar 0.99999 25/02/2015 09:46:27 amd64 1-core (no VSIDS)
+Options: file:domain.pddl file:problem.pddl
+Domain: elevators-sequencedstrips
+Problem: elevators-sequencedstrips-p8_3_1
+Parser: 957 ground actions and 156 state variables
+Invariants: 0 1 2 3 4  0.00 secs
+Goal: conjunctive
+Simplified: 270 ground actions and 61 state variables
+Actions: STRIPS
+Disabling graph %: 10 20 30 40 50 60 70 80 90 100 0.00 secs (max SCC size 3)
+Plan type: E-step
+				Allocated 32 MB permanent (total 123 MB)
+Horizon 0: 61 variables
+0 UNSAT (0 decisions 0 conflicts)
+Horizon 5: 1716 variables
+				Allocated 32 MB (total 307 MB)
+SAT (43 decisions 4 conflicts)
+PLAN FOUND: 5 steps
+0 : (board p2 slow0-0 n2 n0 n1)
+...
+14 actions in the plan.
+total time 0.01 preprocess 0.00 
+total size 382.000 MB
+max. learned clause length 15
+t val conflicts decisions
+0 0 0 0
+5 1 4 43
+#+end_example
+
+** Makefile と シェルスクリプトで頑張ってきたけど辛い
+
+#+begin_example
+  /home/guicho/archives/research-data/2016-ijcai/ijcai16-exp1/all-macro:
+  合計 44K
+  -rw-rw-r-- 1 guicho guicho  621 2016-02-04 20:42 Makefile
+  -rwxrwxr-x 1 guicho guicho 1.5K 2016-02-04 20:42 evaluation.sh
+  -rwxrwxr-x 1 guicho guicho 1.5K 2016-02-04 20:42 expansion.sh
+  -rwxrwxr-x 1 guicho guicho 1.5K 2016-02-04 20:42 generation.sh
+  -rwxrwxr-x 1 guicho guicho 1.5K 2016-02-04 20:42 macroratio.sh
+  -rwxrwxr-x 1 guicho guicho 1.5K 2016-02-04 20:42 macros.sh
+  -rwxrwxr-x 1 guicho guicho  162 2016-02-04 20:42 move-stats.sh
+  -rwxrwxr-x 1 guicho guicho  104 2016-02-04 20:42 per-instance-sorted-primitive-actions.sh
+  -rwxrwxr-x 1 guicho guicho 1.4K 2016-02-04 20:42 preprocessing.sh
+  -rw-rw-r-- 1 guicho guicho 2.5K 2016-02-04 20:42 quantity-macro-len-0.output
+  -rwxrwxr-x 1 guicho guicho 1.5K 2016-02-04 20:42 searchtime.sh
+#+end_example
+
+** DirtyLogMan
+
+#+begin_src sh
+$ ros install guicho271828/dirtylogman
+$ find -name "*.log" | dirty -y sample.yaml -j 12
+cost,count,time,solution,expansion,numline,fig,mode,ipc,track,domain,problem,search,timelimit,memory,plan
+72,0,-1,1,-1,79,fig2,base,ipc2014,opt,visitall-opt14,p20,probe,300,4000000,...
+66,0,-1,1,-1,79,fig2,base,ipc2014,opt,visitall-opt14,p19,probe,300,4000000,...
+47,0,-1,1,-1,79,fig2,base,ipc2014,opt,visitall-opt14,p18,probe,300,4000000,...
+#+end_src
+
+出力はcsv
+
+** 入力はyamlファイル
+
+(特にS式でない理由はない, 使ってみたかっただけ)
+
+#+begin_src yaml
+# fig2-base/ipc2008-opt-master-ad1e-a333af-2016-05-29-14-55/elevators-opt08/p01.ad1e.1800.4000000.out
+# fig2-base/ipc2008-opt-master-ad1e-a333af-2016-05-29-14-55/elevators-opt08/p01.ad1e.1800.4000000.plan.1
+
+pathname:
+  [fig, mode, ipc, track, domain, problem, search, timelimit, memory]:
+    - split fig - mode / ipc - track - * / domain / problem . search . timelimit . memory . *
+    # equivalent:
+    # - regex "([^-]*)-([^/]*)/([^-]*)-([^-]*)-[^/]*/([^/])*/([^.])*\.[^.]*\.([^.])*\.([^.])*\..*"
+  plan:
+    - shell sed s/out/plan.1/g
+expansion:
+  - like "Expanded 5 state(s)." "5" # == shell "awk '/^Expanded .* state(s)\.$/{print $2}'"
+  - default -1
+solution:
+  - exists "Solution found!" # == shell "grep -q 'Solution Found!' ; echo $?"
+count:
+  - count "Solution found!"  # == shell "grep -c 'Solution Found!'"
+numline:
+  - shell wc -l
+...
+#+end_src
+
+** secondary files
+
+#+begin_src yaml
+...
+secondary:
+  - plan # 変数を参照 (secondary節だけ)
+  
+---
+
+cost:
+  # provides multiple parsing methods
+  - like "; cost = 66 (general cost)" "66" :mode :around
+  - like "; cost = 66 (unit cost)" "66" :mode :around
+  - shell wc -l
+  - default NOTFOUND
+#+end_src
+
+** (・~・) Makefileでいいじゃん・・・
+
+今の所、機能はMakefileで出来ることとほぼ同等
+
+→ 将来的には、用途に特化した機能/高速化を付けたい
+
++ CSVでなくDBに書き込み (SQLを用いて後のプロットが楽になる)
++ yamlの監視 & 差分のみを変更
+  + Makefileでは、結果とコマンド全てをファイルに分けないといけない
+    
+    例: 入力ファイル: =fig2-base/.../p01.ad1e.1800.4000000.out=
+    
+    例: 出力ファイル: =fig2-base/.../p01.ad1e.1800.4000000.expansion=
+    
+    例: node expansion 用コマンドを =expansion.sh=
+    
+    例: =%.expansion : %.out expansion.sh=
++ ログファイルを前処理としてインデックス化して個々のタスクを高速化
+  + 今は個々のコマンドがシェルスクリプト呼び出しなので遅い
+
+** 実装
+
+コマンドのディスパッチは CLOS (EQL specializer)
+
+パーサーは CL-YAML (ハッシュテーブルが返ってくるが デバッグしにくいのでこちらで cons tree に)
+
+cl-shellwords : シェルのクオート・アンクオートはこれが便利
+
+lparallel :  ジョブの並列化に
+
+* まとめ
+
+Dynotune で刺激的なチューニング生活
+
+DirtyLogManで快適な研究生活
+
+全部lisp製
