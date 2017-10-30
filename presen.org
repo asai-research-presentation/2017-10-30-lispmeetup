@@ -349,12 +349,15 @@ cost,count,time,solution,expansion,numline,fig,mode,ipc,track,domain,problem,sea
 
 #+begin_src yaml
 expansion:
-  - like "Expanded 5 state(s)." "5" # == shell "awk '/^Expanded .* state(s)\.$/{print $2}'"
+  - like "Expanded 5 state(s)." "5"
+  # == shell "awk '/^Expanded .* state(s)\.$/{print $2}'"
   - default -1
 solution:
-  - exists "Solution found!" # == shell "grep -q 'Solution Found!' ; echo $?"
+  - exists "Solution found!"
+  # == shell "grep -q 'Solution Found!' ; echo $?"
 count:
-  - count "Solution found!"  # == shell "grep -c 'Solution Found!'"
+  - count "Solution found!"
+  # == shell "grep -c 'Solution Found!'"
 numline:
   - shell wc -l
 ...
