@@ -411,3 +411,7 @@ Dynotune で刺激的なチューニング生活
 DirtyLogManで快適な研究生活
 
 全部lisp製
+
+#+begin_center
+*Happy Hacking!*
+#+end_center
