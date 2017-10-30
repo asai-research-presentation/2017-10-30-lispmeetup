@@ -342,21 +342,9 @@ cost,count,time,solution,expansion,numline,fig,mode,ipc,track,domain,problem,sea
 
 ** 入力はyamlファイル
 
-それぞれの節がCSVの行に対応
-
-(特にS式でない理由はない, 使ってみたかっただけ)
+それぞれの節がCSVの行に対応、コマンドの結果が値になる
 
 #+begin_src yaml
-# fig2-base/ipc2008-opt-master-ad1e-a333af-2016-05-29-14-55/elevators-opt08/p01.ad1e.1800.4000000.out
-# fig2-base/ipc2008-opt-master-ad1e-a333af-2016-05-29-14-55/elevators-opt08/p01.ad1e.1800.4000000.plan.1
-
-pathname:
-  [fig, mode, ipc, track, domain, problem, search, timelimit, memory]:
-    - split fig - mode / ipc - track - * / domain / problem . search . timelimit . memory . *
-    # equivalent:
-    # - regex "([^-]*)-([^/]*)/([^-]*)-([^-]*)-[^/]*/([^/])*/([^.])*\.[^.]*\.([^.])*\.([^.])*\..*"
-  plan:
-    - shell sed s/out/plan.1/g
 expansion:
   - like "Expanded 5 state(s)." "5" # == shell "awk '/^Expanded .* state(s)\.$/{print $2}'"
   - default -1
@@ -369,17 +357,39 @@ numline:
 ...
 #+end_src
 
-** secondary files
+(特にS式でない理由はない, 使ってみたかっただけ)
+
+** 予約語: pathname
+
+pathname節のコマンドは ファイル名に対しての操作
 
 #+begin_src yaml
-...
+# fig2-base/ipc2008-opt-master-ad1e-a333af-2016-05-29-14-55/elevators-opt08/p01.ad1e.1800.4000000.out
+
+pathname:
+  [fig, mode, ipc, track, domain, problem, search, timelimit, memory]:
+    - split fig - mode / ipc - track - * / domain / problem . search . timelimit . memory . *
+    # equivalent:
+    - regex "([^-]*)-([^/]*)/([^-]*)-([^-]*)-[^/]*/([^/])*/([^.])*\.[^.]*\.([^.])*\.([^.])*\..*"
+#+end_src
+
+** 予約語: secondary
+
+外部ファイルの読み込み
+
+#+begin_src yaml
+# .../p01.ad1e.1800.4000000.out
+# .../p01.ad1e.1800.4000000.plan.1
+pathname:
+  plan:
+    - shell sed s/out/plan.1/g
 secondary:
   - plan # 変数を参照 (secondary節だけ)
   
 ---
-
+# ^^^ yaml の document separator
+# 第二入力ファイル
 cost:
-  # provides multiple parsing methods
   - like "; cost = 66 (general cost)" "66" :mode :around
   - like "; cost = 66 (unit cost)" "66" :mode :around
   - shell wc -l
@@ -408,9 +418,11 @@ cost:
 
 ** 実装
 
-コマンドのディスパッチは CLOS (EQL specializer)
+コマンドのディスパッチは CLOS (最初の語をreadしてEQL specializer)
 
-パーサーは CL-YAML (ハッシュテーブルが返ってくるが デバッグしにくいのでこちらで cons tree に)
+パーサーは CL-YAML
+
+ (ハッシュテーブルが返ってくるが デバッグしにくいのでこちらで cons tree に)
 
 cl-shellwords : シェルのクオート・アンクオートはこれが便利
 
